@@ -17,6 +17,11 @@ class CaseStudy(models.Model):
     results = models.TextField()
     cover_image = models.URLField(max_length=500, blank=True)
     tags = models.JSONField(default=list, blank=True)
+    meta_description = models.TextField(
+        blank=True,
+        max_length=300,
+        help_text="155-160 chars, used for <meta name='description'>",
+    )
     featured = models.BooleanField(default=False)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="published")
     published_at = models.DateField()

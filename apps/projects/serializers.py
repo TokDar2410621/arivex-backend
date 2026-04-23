@@ -33,6 +33,7 @@ class CaseStudyDetailSerializer(serializers.ModelSerializer):
             "results",
             "cover_image",
             "tags",
+            "meta_description",
             "featured",
             "status",
             "published_at",

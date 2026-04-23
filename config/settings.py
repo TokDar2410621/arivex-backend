@@ -50,7 +50,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -136,6 +136,9 @@ RESEND_FROM_EMAIL = env("RESEND_FROM_EMAIL", default="Arivex <onboarding@resend.
 CONTACT_NOTIFY_EMAIL = env("CONTACT_NOTIFY_EMAIL", default="tokamdarius@gmail.com")
 
 INTERNAL_API_KEY = env("INTERNAL_API_KEY", default="")
+
+# Public frontend URL used to build absolute links in the sitemap.
+FRONTEND_URL = env("FRONTEND_URL", default="https://arivex-six.vercel.app").rstrip("/")
 
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
