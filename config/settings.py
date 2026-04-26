@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "corsheaders",
+    "apps.core",
     "apps.blog",
     "apps.projects",
     "apps.contact",
@@ -140,6 +141,11 @@ INTERNAL_API_KEY = env("INTERNAL_API_KEY", default="")
 # Public frontend URL used to build absolute links in the sitemap and email
 # templates. Override via Railway env var if the production domain changes.
 FRONTEND_URL = env("FRONTEND_URL", default="https://arivex.ca").rstrip("/")
+
+# Vercel deploy hook (Settings -> Git -> Deploy Hooks). When set, every
+# save/delete of a published BlogPost or CaseStudy fires a POST that triggers
+# a Vercel rebuild, so the static HTML for new slugs gets generated.
+VERCEL_DEPLOY_HOOK_URL = env("VERCEL_DEPLOY_HOOK_URL", default="")
 
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
