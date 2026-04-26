@@ -137,8 +137,9 @@ CONTACT_NOTIFY_EMAIL = env("CONTACT_NOTIFY_EMAIL", default="tokamdarius@gmail.co
 
 INTERNAL_API_KEY = env("INTERNAL_API_KEY", default="")
 
-# Public frontend URL used to build absolute links in the sitemap.
-FRONTEND_URL = env("FRONTEND_URL", default="https://arivex-six.vercel.app").rstrip("/")
+# Public frontend URL used to build absolute links in the sitemap and email
+# templates. Override via Railway env var if the production domain changes.
+FRONTEND_URL = env("FRONTEND_URL", default="https://arivex.ca").rstrip("/")
 
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")

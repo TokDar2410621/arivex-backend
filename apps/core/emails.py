@@ -56,6 +56,8 @@ def run_in_thread(fn: Callable[[], None]) -> None:
 
 def _shell(title: str, body_html: str) -> str:
     """Minimal, safe HTML wrapper. No external assets, inlined styles only."""
+    site_url = settings.FRONTEND_URL
+    site_label = site_url.replace("https://", "").replace("http://", "").rstrip("/")
     return f"""\
 <!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>{escape(title)}</title></head>
@@ -71,7 +73,7 @@ def _shell(title: str, body_html: str) -> str:
           {body_html}
           <p style="margin:32px 0 0;padding-top:24px;border-top:1px solid #1f2937;font-size:12px;color:#6b7280;">
             Arivex — Saguenay, QC<br>
-            <a href="https://arivex-six.vercel.app" style="color:#6b7280;">arivex.ca</a>
+            <a href="{escape(site_url)}" style="color:#6b7280;">{escape(site_label)}</a>
           </p>
         </td></tr>
       </table>
