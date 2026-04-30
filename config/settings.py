@@ -147,6 +147,11 @@ FRONTEND_URL = env("FRONTEND_URL", default="https://arivex.ca").rstrip("/")
 # a Vercel rebuild, so the static HTML for new slugs gets generated.
 VERCEL_DEPLOY_HOOK_URL = env("VERCEL_DEPLOY_HOOK_URL", default="")
 
+# IndexNow key for pinging Bing/Yandex/Seznam/Naver when content changes.
+# The key must also be hosted as a plain-text file at
+# https://<FRONTEND_URL>/<KEY>.txt so the search engines can verify ownership.
+INDEXNOW_KEY = env("INDEXNOW_KEY", default="")
+
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
     SECURE_SSL_REDIRECT = True
