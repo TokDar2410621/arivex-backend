@@ -147,6 +147,11 @@ FRONTEND_URL = env("FRONTEND_URL", default="https://arivex.ca").rstrip("/")
 # a Vercel rebuild, so the static HTML for new slugs gets generated.
 VERCEL_DEPLOY_HOOK_URL = env("VERCEL_DEPLOY_HOOK_URL", default="")
 
+# On-demand ISR revalidation (front Next.js). Remplace les rebuilds complets :
+# le front expose POST /api/revalidate, on lui envoie les chemins touches.
+REVALIDATE_URL = env("REVALIDATE_URL", default="")
+REVALIDATE_SECRET = env("REVALIDATE_SECRET", default="")
+
 # IndexNow key for pinging Bing/Yandex/Seznam/Naver when content changes.
 # The key must also be hosted as a plain-text file at
 # https://<FRONTEND_URL>/<KEY>.txt so the search engines can verify ownership.

@@ -64,7 +64,7 @@ class BlogPost(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        ordering = ["-published_at"]
+        ordering = ["-published_at", "-id"]
         constraints = [
             models.UniqueConstraint(
                 fields=["slug", "language"],

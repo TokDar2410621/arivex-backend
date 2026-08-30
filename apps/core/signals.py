@@ -100,10 +100,42 @@ def _trigger_indexnow(urls: list[str], reason: str) -> None:
     threading.Thread(target=_fire, daemon=True).start()
 
 
+
+
+# ─── Next.js on-demand revalidation ────────────────────────────────────────
+
+def _trigger_revalidate(paths: list[str], reason: str) -> None:
+    """POST the touched paths to the front's /api/revalidate (ISR)."""
+    url = settings.REVALIDATE_URL
+    secret = settings.REVALIDATE_SECRET
+    if not url or not secret:
+        logger.debug("REVALIDATE_URL/SECRET not set; skipping revalidate for %s", reason)
+        return
+
+    def _fire():
+        try:
+            response = requests.post(
+                url,
+                json={"paths": paths},
+                headers={"X-Revalidate-Secret": secret},
+                timeout=10,
+            )
+            response.raise_for_status()
+            logger.info("Revalidate (%s, %d paths) -> %s", reason, len(paths), response.status_code)
+        except requests.RequestException as exc:
+            logger.warning("Revalidate failed for %s: %s", reason, exc)
+
+    threading.Thread(target=_fire, daemon=True).start()
+
+
 # ─── Schedulers (run after the DB commit) ──────────────────────────────────
 
-def _schedule_rebuild(reason: str) -> None:
-    transaction.on_commit(lambda: _trigger_vercel_deploy(reason))
+def _schedule_rebuild(reason: str, paths: list[str] | None = None) -> None:
+    """Prefere la revalidation ISR ciblee ; sinon retombe sur le deploy hook."""
+    if settings.REVALIDATE_URL and paths:
+        transaction.on_commit(lambda: _trigger_revalidate(paths, reason))
+    else:
+        transaction.on_commit(lambda: _trigger_vercel_deploy(reason))
 
 
 def _schedule_indexnow(url: str, reason: str) -> None:
@@ -120,7 +152,7 @@ def _frontend_url(path: str) -> str:
 def blogpost_saved(sender, instance: BlogPost, created: bool, **kwargs):
     if instance.status == "published":
         reason = f"BlogPost saved: {instance.slug}"
-        _schedule_rebuild(reason)
+        _schedule_rebuild(reason, ["/blog", f"/blog/{instance.slug}"])
         _schedule_indexnow(_frontend_url(f"blog/{instance.slug}"), reason)
 
 
@@ -128,7 +160,7 @@ def blogpost_saved(sender, instance: BlogPost, created: bool, **kwargs):
 def blogpost_deleted(sender, instance: BlogPost, **kwargs):
     if instance.status == "published":
         reason = f"BlogPost deleted: {instance.slug}"
-        _schedule_rebuild(reason)
+        _schedule_rebuild(reason, ["/blog", f"/blog/{instance.slug}"])
         # No IndexNow ping on delete — there's no "removed" notification in v2;
         # Bing/Yandex see the URL 404 on next crawl and drop it themselves.
 
@@ -139,11 +171,11 @@ def blogpost_deleted(sender, instance: BlogPost, **kwargs):
 def casestudy_saved(sender, instance: CaseStudy, created: bool, **kwargs):
     if instance.status == "published":
         reason = f"CaseStudy saved: {instance.slug}"
-        _schedule_rebuild(reason)
-        _schedule_indexnow(_frontend_url(f"projects/{instance.slug}"), reason)
+        _schedule_rebuild(reason, ["/realisations", f"/realisations/{instance.slug}"])
+        _schedule_indexnow(_frontend_url(f"realisations/{instance.slug}"), reason)
 
 
 @receiver(post_delete, sender=CaseStudy)
 def casestudy_deleted(sender, instance: CaseStudy, **kwargs):
     if instance.status == "published":
-        _schedule_rebuild(f"CaseStudy deleted: {instance.slug}")
+        _schedule_rebuild(f"CaseStudy deleted: {instance.slug}", ["/realisations", f"/realisations/{instance.slug}"])
